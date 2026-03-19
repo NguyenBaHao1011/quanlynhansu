@@ -1,0 +1,17 @@
+{
+    "name": "thm/hrm-system",
+    "autoload": {
+        "psr-4": {
+            "Thm\\HrmSystem\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "HieeJu",
+            "email": "vungochieunb@gmail.com"
+        }
+    ],
+   "require": {
+    "google/apiclient": "^2.19"
+}
+}
