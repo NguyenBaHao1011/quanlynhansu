@@ -1,0 +1,46 @@
+# Dependencies
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+
+# Environment and configuration
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and cache
+*.log
+storage/logs/*
+!storage/logs/.gitkeep
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+
+# Uploaded files
+storage/uploads/*
+!storage/uploads/.gitkeep
+
+# Database configuration (if contains sensitive data)
+# app/config/database.php
+
+# Backup files
+*.bak
+*.backup
+*.sql.gz
+
+# Temporary files
+tmp/
+temp/
+*.tmp
