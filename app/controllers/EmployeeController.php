@@ -36,6 +36,9 @@ class EmployeeController
         // Check admin permission
         Auth::requireAdmin();
         
+        $employeeModel = new Employee();
+        $departments = $employeeModel->getDepartments();
+        
         require_once "../app/views/employee/create.php";
     }
 
@@ -47,15 +50,17 @@ class EmployeeController
         
         $data = [
             'employee_code' => $_POST['employee_code'],
-            'fullname' => $_POST['fullname'],
-            'email' => $_POST['email'],
-            'phone' => $_POST['phone'],
+            'full_name' => $_POST['full_name'],
             'gender' => $_POST['gender'],
-            'birthday' => $_POST['birthday'],
+            'date_of_birth' => $_POST['date_of_birth'],
+            'phone' => $_POST['phone'],
+            'email' => $_POST['email'],
             'address' => $_POST['address'],
-            'department' => $_POST['department'],
+            'avatar' => $_POST['avatar'] ?? null,
+            'department_id' => !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null,
             'position' => $_POST['position'],
-            'salary' => $_POST['salary']
+            'hire_date' => $_POST['hire_date'],
+            'status' => $_POST['status'] ?? 'Working'
         ];
 
         $employee = new Employee();
@@ -72,7 +77,14 @@ class EmployeeController
         $id = $_GET['id'];
         $employee = new Employee();
         $row = $employee->find($id);
-
+        
+        if (!$row) {
+            header("Location: " . BASE_URL . "index.php?controller=Employee&action=index");
+            exit;
+        }
+        
+        $departments = $employee->getDepartments();
+        
         require_once "../app/views/employee/edit.php";
     }
 
@@ -81,8 +93,24 @@ class EmployeeController
         // Check admin permission
         Auth::requireAdmin();
         
+        $data = [
+            'id' => $_POST['id'],
+            'employee_code' => $_POST['employee_code'],
+            'full_name' => $_POST['full_name'],
+            'gender' => $_POST['gender'],
+            'date_of_birth' => $_POST['date_of_birth'],
+            'phone' => $_POST['phone'],
+            'email' => $_POST['email'],
+            'address' => $_POST['address'],
+            'avatar' => $_POST['avatar'] ?? null,
+            'department_id' => !empty($_POST['department_id']) ? (int)$_POST['department_id'] : null,
+            'position' => $_POST['position'],
+            'hire_date' => $_POST['hire_date'],
+            'status' => $_POST['status'] ?? 'Working'
+        ];
+        
         $employee = new Employee();
-        $employee->update($_POST);
+        $employee->update($data);
 
         header("Location: " . BASE_URL . "index.php?controller=Employee&action=index");
     }
@@ -96,6 +124,11 @@ class EmployeeController
         $id = $_GET['id'];
         $employee = new Employee();
         $row = $employee->find($id);
+        
+        if (!$row) {
+            header("Location: " . BASE_URL . "index.php?controller=Employee&action=index");
+            exit;
+        }
 
         require_once "../app/views/employee/delete.php";
     }

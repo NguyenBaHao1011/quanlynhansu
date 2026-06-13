@@ -3,7 +3,7 @@
 class Database {
 
     private $host = "localhost";
-    private $dbname = "hrm_system";
+    private $dbname = "hrm_management";
     private $username = "root";
     private $password = "";
 

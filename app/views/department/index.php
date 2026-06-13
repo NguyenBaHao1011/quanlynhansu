@@ -2,12 +2,9 @@
 <html lang="vi">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Danh sách nhân viên</title>
+    <title>Danh sách phòng ban</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -23,8 +20,6 @@
 
 <body>
 
-<!-- SIDEBAR -->
-
 <div class="sidebar">
 
     <div class="logo">
@@ -38,15 +33,15 @@
             Dashboard
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Employee&action=index"
-            class="active-menu">
+        <a href="/hrm-system/public/index.php?controller=Employee&action=index">
 
             <i class="fa-solid fa-users"></i>
             Nhân viên
 
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Department&action=index">
+        <a href="/hrm-system/public/index.php?controller=Department&action=index"
+            class="active-menu">
 
             <i class="fa-solid fa-building"></i>
             Phòng ban
@@ -92,24 +87,22 @@
 
 </div>
 
-<!-- MAIN CONTENT -->
-
 <div class="main-content">
 
     <div class="top-bar">
 
         <h1 class="page-title">
 
-            <i class="fa-solid fa-users"></i>
-            Danh sách nhân viên
+            <i class="fa-solid fa-building"></i>
+            Danh sách phòng ban
 
         </h1>
 
-        <a href="<?= BASE_URL ?>index.php?controller=Employee&action=create"
+        <a href="<?= BASE_URL ?>index.php?controller=Department&action=create"
            class="btn-add">
 
             <i class="fa-solid fa-plus"></i>
-            Thêm nhân viên
+            Thêm phòng ban
 
         </a>
 
@@ -118,11 +111,11 @@
     <div class="employee-card">
         <form method="GET"
             action="/hrm-system/public/index.php"
-            class="search-form">
+            class="mb-4 d-flex">
 
             <input type="hidden"
                 name="controller"
-                value="Employee">
+                value="Department">
 
             <input type="hidden"
                 name="action"
@@ -130,10 +123,10 @@
 
             <input type="text"
                 name="keyword"
-                class="form-control"
-                placeholder="Tìm nhân viên theo tên, email, mã NV...">
+                class="form-control me-2"
+                placeholder="Tìm phòng ban...">
 
-            <button class="btn-search">
+            <button class="btn btn-primary">
 
                 <i class="fa-solid fa-magnifying-glass"></i>
 
@@ -149,12 +142,11 @@
                 <tr>
 
                     <th>ID</th>
-                    <th>Mã NV</th>
-                    <th>Họ tên</th>
+                    <th>Mã phòng</th>
+                    <th>Tên phòng ban</th>
+                    <th>Trưởng phòng</th>
+                    <th>Số điện thoại</th>
                     <th>Email</th>
-                    <th>Phòng ban</th>
-                    <th>Chức vụ</th>
-                    <th>Trạng thái</th>
                     <th>Hành động</th>
 
                 </tr>
@@ -163,75 +155,38 @@
 
             <tbody>
 
-            <?php if(isset($employees) && $employees->num_rows > 0): ?>
+            <?php if(isset($departments) && $departments->num_rows > 0): ?>
 
-                <?php while($row = $employees->fetch_assoc()) : ?>
+                <?php while($row = $departments->fetch_assoc()) : ?>
 
                     <tr>
 
                         <td><?= $row['id'] ?></td>
 
-                        <td><?= $row['employee_code'] ?></td>
+                        <td><?= $row['department_code'] ?? 'Chưa có' ?></td>
 
                         <td>
-                            <strong><?= $row['full_name'] ?></strong>
+                            <strong><?= $row['department_name'] ?></strong>
                         </td>
 
-                        <td><?= $row['email'] ?></td>
+                        <td><?= $row['manager_name'] ?? 'Chưa có' ?></td>
 
-                        <td>
-                            <span class="department">
-                                <?= $row['department_name'] ?? 'Chưa có' ?>
-                            </span>
-                        </td>
+                        <td><?= $row['phone'] ?? 'Chưa có' ?></td>
 
-                        <td>
-                            <span class="position">
-                                <?= $row['position'] ?? 'Chưa có' ?>
-                            </span>
-                        </td>
-
-                        <td>
-                            <?php 
-                                $statusClass = '';
-                                $statusText = '';
-                                switch($row['status']) {
-                                    case 'Working':
-                                        $statusClass = 'bg-success';
-                                        $statusText = 'Đang làm';
-                                        break;
-                                    case 'Probation':
-                                        $statusClass = 'bg-warning text-dark';
-                                        $statusText = 'Thử việc';
-                                        break;
-                                    case 'Resigned':
-                                        $statusClass = 'bg-danger';
-                                        $statusText = 'Đã nghỉ';
-                                        break;
-                                    case 'Maternity Leave':
-                                        $statusClass = 'bg-info';
-                                        $statusText = 'Nghỉ thai';
-                                        break;
-                                    default:
-                                        $statusClass = 'bg-secondary';
-                                        $statusText = $row['status'];
-                                }
-                            ?>
-                            <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
-                        </td>
+                        <td><?= $row['email'] ?? 'Chưa có' ?></td>
 
                         <td>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=edit&id=<?= $row['id'] ?>"
+                            <a href="/hrm-system/public/index.php?controller=Department&action=edit&id=<?= $row['id'] ?>"
                             class="action-btn btn-edit text-decoration-none">
 
                                 <i class="fa-solid fa-pen"></i>
 
                             </a>
 
-                            <?php if (Auth::isAdmin()): ?>
+                            <?php if($_SESSION['user']['role'] == 'admin'): ?>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=delete&id=<?= $row['id'] ?>"
+                            <a href="/hrm-system/public/index.php?controller=Department&action=delete&id=<?= $row['id'] ?>"
                             class="action-btn btn-delete text-decoration-none">
 
                                 <i class="fa-solid fa-trash"></i>
@@ -250,14 +205,14 @@
 
                 <tr>
 
-                    <td colspan="8">
+                    <td colspan="7">
 
                         <div class="empty-box">
 
-                            <i class="fa-solid fa-users-slash"></i>
+                            <i class="fa-solid fa-building"></i>
 
                             <h4>
-                                Chưa có nhân viên nào
+                                Chưa có phòng ban nào
                             </h4>
 
                         </div>
@@ -274,12 +229,12 @@
         </div>
 
         <?php if(isset($totalPage)): ?>
-        <div class="pagination-wrapper">
+        <div class="d-flex justify-content-center mt-4">
 
             <?php for($i = 1; $i <= $totalPage; $i++): ?>
 
-                <a href="?controller=Employee&action=index&page=<?= $i ?>"
-                class="pagination-btn <?= ($currentPage ?? 1) == $i ? 'active-page' : '' ?>">
+                <a href="?controller=Department&action=index&page=<?= $i ?>"
+                class="pagination-btn mx-1">
 
                     <?= $i ?>
 

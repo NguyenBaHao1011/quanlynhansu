@@ -10,7 +10,7 @@ class Employee
             "localhost",
             "root",
             "",
-            "hrm_system"
+            "hrm_management"
         );
 
         if($this->conn->connect_error)
@@ -22,7 +22,9 @@ class Employee
     // LẤY TẤT CẢ NHÂN VIÊN
     public function getAll()
     {
-        $sql = "SELECT * FROM employees";
+        $sql = "SELECT e.*, d.department_name FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id
+                WHERE e.is_deleted = 0";
 
         $result = $this->conn->query($sql);
 
@@ -35,41 +37,48 @@ class Employee
         $sql = "INSERT INTO employees
         (
             employee_code,
-            fullname,
-            email,
-            phone,
+            full_name,
             gender,
-            birthday,
+            date_of_birth,
+            phone,
+            email,
             address,
-            department,
+            avatar,
+            department_id,
             position,
-            salary
+            hire_date,
+            status
         )
 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($sql);
 
         $stmt->bind_param(
-            "sssssssssd",
+            "ssssssssisss",
 
             $data['employee_code'],
-            $data['fullname'],
-            $data['email'],
-            $data['phone'],
+            $data['full_name'],
             $data['gender'],
-            $data['birthday'],
+            $data['date_of_birth'],
+            $data['phone'],
+            $data['email'],
             $data['address'],
-            $data['department'],
+            $data['avatar'],
+            $data['department_id'],
             $data['position'],
-            $data['salary']
+            $data['hire_date'],
+            $data['status']
         );
 
         return $stmt->execute();
     }
+    
     public function find($id)
     {
-        $sql = "SELECT * FROM employees WHERE id = ?";
+        $sql = "SELECT e.*, d.department_name FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id
+                WHERE e.id = ? AND e.is_deleted = 0";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -82,22 +91,34 @@ class Employee
         $sql = "UPDATE employees
                 SET
                     employee_code = ?,
-                    fullname = ?,
+                    full_name = ?,
+                    gender = ?,
+                    date_of_birth = ?,
+                    phone = ?,
                     email = ?,
-                    department = ?,
+                    address = ?,
+                    avatar = ?,
+                    department_id = ?,
                     position = ?,
-                    salary = ?
+                    hire_date = ?,
+                    status = ?
                 WHERE id = ?";
         
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param(
-            "sssssii",
+            "ssssssssisssi",
             $data['employee_code'],
-            $data['fullname'],
+            $data['full_name'],
+            $data['gender'],
+            $data['date_of_birth'],
+            $data['phone'],
             $data['email'],
-            $data['department'],
+            $data['address'],
+            $data['avatar'],
+            $data['department_id'],
             $data['position'],
-            $data['salary'],
+            $data['hire_date'],
+            $data['status'],
             $data['id']
         );
         
@@ -106,39 +127,73 @@ class Employee
 
     public function delete($id)
     {
+        $sql = "UPDATE employees SET is_deleted = 1 WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
+    }
+    
+    public function hardDelete($id)
+    {
         $sql = "DELETE FROM employees WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         return $stmt->affected_rows > 0;
     }
+
     public function search($keyword)
     {
-        $sql = "SELECT * FROM employees
-                WHERE fullname LIKE ?
-                OR employee_code LIKE ?";
+        $sql = "SELECT e.*, d.department_name FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id
+                WHERE e.is_deleted = 0 
+                AND (e.full_name LIKE ? OR e.employee_code LIKE ? OR e.email LIKE ?)";
         $stmt = $this->conn->prepare($sql);
         $keyword = "%$keyword%";
-        $stmt->bind_param("ss", $keyword, $keyword);
+        $stmt->bind_param("sss", $keyword, $keyword, $keyword);
         $stmt->execute();
         return $stmt->get_result();
     }
+    
     public function paginate($start, $limit)
     {
-        $sql = "SELECT * FROM employees LIMIT ?, ?";
+        $sql = "SELECT e.*, d.department_name FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id
+                WHERE e.is_deleted = 0
+                LIMIT ?, ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ii", $start, $limit);
         $stmt->execute();
         return $stmt->get_result();
     }
+    
     public function countEmployee()
     {
-        $sql = "SELECT COUNT(*) as total FROM employees";
+        $sql = "SELECT COUNT(*) as total FROM employees WHERE is_deleted = 0";
 
         $result = $this->conn->query($sql);
 
         $row = $result->fetch_assoc();
 
         return $row['total'];
+    }
+    
+    public function getDepartments()
+    {
+        $sql = "SELECT id, department_name FROM departments";
+        $result = $this->conn->query($sql);
+        return $result;
+    }
+    
+    public function getByDepartment($department_id)
+    {
+        $sql = "SELECT e.*, d.department_name FROM employees e 
+                LEFT JOIN departments d ON e.department_id = d.id
+                WHERE e.department_id = ? AND e.is_deleted = 0";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $department_id);
+        $stmt->execute();
+        return $stmt->get_result();
     }
 }

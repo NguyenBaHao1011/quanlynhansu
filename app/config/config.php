@@ -4,7 +4,7 @@ define('BASE_URL', '/hrm-system/public/');
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'hrm_system');
+define('DB_NAME', 'hrm_management');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 

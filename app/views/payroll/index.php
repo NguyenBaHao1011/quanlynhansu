@@ -2,12 +2,9 @@
 <html lang="vi">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Danh sách nhân viên</title>
+    <title>Danh sách lương</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -23,8 +20,6 @@
 
 <body>
 
-<!-- SIDEBAR -->
-
 <div class="sidebar">
 
     <div class="logo">
@@ -38,8 +33,7 @@
             Dashboard
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Employee&action=index"
-            class="active-menu">
+        <a href="/hrm-system/public/index.php?controller=Employee&action=index">
 
             <i class="fa-solid fa-users"></i>
             Nhân viên
@@ -74,7 +68,8 @@
 
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Payroll&action=index">
+        <a href="/hrm-system/public/index.php?controller=Payroll&action=index"
+            class="active-menu">
 
             <i class="fa-solid fa-money-bill"></i>
             Lương
@@ -92,37 +87,40 @@
 
 </div>
 
-<!-- MAIN CONTENT -->
-
 <div class="main-content">
 
     <div class="top-bar">
 
         <h1 class="page-title">
 
-            <i class="fa-solid fa-users"></i>
-            Danh sách nhân viên
+            <i class="fa-solid fa-money-bill"></i>
+            Danh sách bảng lương
 
         </h1>
 
-        <a href="<?= BASE_URL ?>index.php?controller=Employee&action=create"
-           class="btn-add">
-
-            <i class="fa-solid fa-plus"></i>
-            Thêm nhân viên
-
-        </a>
+        <div class="d-flex gap-2">
+            <a href="<?= BASE_URL ?>index.php?controller=Payroll&action=create"
+               class="btn-add">
+                <i class="fa-solid fa-plus"></i>
+                Thêm lương
+            </a>
+            <a href="<?= BASE_URL ?>index.php?controller=Payroll&action=calculate"
+               class="btn btn-success">
+                <i class="fa-solid fa-calculator"></i>
+                Tính lương tự động
+            </a>
+        </div>
 
     </div>
 
     <div class="employee-card">
         <form method="GET"
             action="/hrm-system/public/index.php"
-            class="search-form">
+            class="mb-4 d-flex flex-wrap gap-2">
 
             <input type="hidden"
                 name="controller"
-                value="Employee">
+                value="Payroll">
 
             <input type="hidden"
                 name="action"
@@ -131,12 +129,25 @@
             <input type="text"
                 name="keyword"
                 class="form-control"
-                placeholder="Tìm nhân viên theo tên, email, mã NV...">
+                placeholder="Tìm kiếm nhân viên..."
+                style="min-width: 200px;">
 
-            <button class="btn-search">
+            <select name="month" class="form-control" style="width: auto;">
+                <option value="">Tháng</option>
+                <?php for($m = 1; $m <= 12; $m++): ?>
+                    <option value="<?= $m ?>" <?= (isset($_GET['month']) && $_GET['month'] == $m) ? 'selected' : '' ?>><?= $m ?></option>
+                <?php endfor; ?>
+            </select>
 
+            <select name="year" class="form-control" style="width: auto;">
+                <option value="">Năm</option>
+                <?php for($y = date('Y'); $y >= 2020; $y--): ?>
+                    <option value="<?= $y ?>" <?= (isset($_GET['year']) && $_GET['year'] == $y) ? 'selected' : '' ?>><?= $y ?></option>
+                <?php endfor; ?>
+            </select>
+
+            <button class="btn btn-primary">
                 <i class="fa-solid fa-magnifying-glass"></i>
-
             </button>
 
         </form>
@@ -151,9 +162,15 @@
                     <th>ID</th>
                     <th>Mã NV</th>
                     <th>Họ tên</th>
-                    <th>Email</th>
                     <th>Phòng ban</th>
-                    <th>Chức vụ</th>
+                    <th>Tháng/Năm</th>
+                    <th>Ngày công chuẩn</th>
+                    <th>Ngày công thực tế</th>
+                    <th>Lương cơ bản</th>
+                    <th>Phụ cấp</th>
+                    <th>Thưởng</th>
+                    <th>Khấu trừ</th>
+                    <th>Tổng lương</th>
                     <th>Trạng thái</th>
                     <th>Hành động</th>
 
@@ -163,9 +180,9 @@
 
             <tbody>
 
-            <?php if(isset($employees) && $employees->num_rows > 0): ?>
+            <?php if(isset($payrolls) && $payrolls->num_rows > 0): ?>
 
-                <?php while($row = $employees->fetch_assoc()) : ?>
+                <?php while($row = $payrolls->fetch_assoc()) : ?>
 
                     <tr>
 
@@ -177,44 +194,42 @@
                             <strong><?= $row['full_name'] ?></strong>
                         </td>
 
-                        <td><?= $row['email'] ?></td>
+                        <td><?= $row['department_name'] ?? 'Chưa có' ?></td>
 
-                        <td>
-                            <span class="department">
-                                <?= $row['department_name'] ?? 'Chưa có' ?>
-                            </span>
-                        </td>
+                        <td><?= sprintf('%02d/%d', $row['payroll_month'], $row['payroll_year']) ?></td>
 
-                        <td>
-                            <span class="position">
-                                <?= $row['position'] ?? 'Chưa có' ?>
-                            </span>
+                        <td><?= $row['standard_working_day'] ?></td>
+
+                        <td><?= $row['actual_working_day'] ?? 0 ?></td>
+
+                        <td><?= number_format($row['basic_salary']) ?> VNĐ</td>
+
+                        <td><?= number_format($row['allowance']) ?> VNĐ</td>
+
+                        <td><?= number_format($row['bonus']) ?> VNĐ</td>
+
+                        <td><?= number_format($row['deduction']) ?> VNĐ</td>
+
+                        <td class="salary">
+                            <strong><?= number_format($row['total_salary']) ?> VNĐ</strong>
                         </td>
 
                         <td>
                             <?php 
                                 $statusClass = '';
                                 $statusText = '';
-                                switch($row['status']) {
-                                    case 'Working':
-                                        $statusClass = 'bg-success';
-                                        $statusText = 'Đang làm';
-                                        break;
-                                    case 'Probation':
+                                switch($row['payment_status']) {
+                                    case 'Pending':
                                         $statusClass = 'bg-warning text-dark';
-                                        $statusText = 'Thử việc';
+                                        $statusText = 'Chờ thanh toán';
                                         break;
-                                    case 'Resigned':
-                                        $statusClass = 'bg-danger';
-                                        $statusText = 'Đã nghỉ';
-                                        break;
-                                    case 'Maternity Leave':
-                                        $statusClass = 'bg-info';
-                                        $statusText = 'Nghỉ thai';
+                                    case 'Paid':
+                                        $statusClass = 'bg-success';
+                                        $statusText = 'Đã thanh toán';
                                         break;
                                     default:
                                         $statusClass = 'bg-secondary';
-                                        $statusText = $row['status'];
+                                        $statusText = $row['payment_status'];
                                 }
                             ?>
                             <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
@@ -222,16 +237,16 @@
 
                         <td>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=edit&id=<?= $row['id'] ?>"
+                            <a href="/hrm-system/public/index.php?controller=Payroll&action=edit&id=<?= $row['id'] ?>"
                             class="action-btn btn-edit text-decoration-none">
 
                                 <i class="fa-solid fa-pen"></i>
 
                             </a>
 
-                            <?php if (Auth::isAdmin()): ?>
+                            <?php if($_SESSION['user']['role'] == 'admin'): ?>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=delete&id=<?= $row['id'] ?>"
+                            <a href="/hrm-system/public/index.php?controller=Payroll&action=delete&id=<?= $row['id'] ?>"
                             class="action-btn btn-delete text-decoration-none">
 
                                 <i class="fa-solid fa-trash"></i>
@@ -250,14 +265,14 @@
 
                 <tr>
 
-                    <td colspan="8">
+                    <td colspan="14">
 
                         <div class="empty-box">
 
-                            <i class="fa-solid fa-users-slash"></i>
+                            <i class="fa-solid fa-money-bill"></i>
 
                             <h4>
-                                Chưa có nhân viên nào
+                                Chưa có bảng lương nào
                             </h4>
 
                         </div>
@@ -274,12 +289,12 @@
         </div>
 
         <?php if(isset($totalPage)): ?>
-        <div class="pagination-wrapper">
+        <div class="d-flex justify-content-center mt-4">
 
             <?php for($i = 1; $i <= $totalPage; $i++): ?>
 
-                <a href="?controller=Employee&action=index&page=<?= $i ?>"
-                class="pagination-btn <?= ($currentPage ?? 1) == $i ? 'active-page' : '' ?>">
+                <a href="?controller=Payroll&action=index&page=<?= $i ?><?= isset($_GET['month']) ? '&month=' . $_GET['month'] : '' ?><?= isset($_GET['year']) ? '&year=' . $_GET['year'] : '' ?>"
+                class="pagination-btn mx-1">
 
                     <?= $i ?>
 

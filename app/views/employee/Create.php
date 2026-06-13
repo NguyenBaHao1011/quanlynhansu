@@ -41,17 +41,38 @@
 
         </a>
 
-        <a href="#">
+        <a href="/hrm-system/public/index.php?controller=Department&action=index">
 
             <i class="fa-solid fa-building"></i>
             Phòng ban
 
         </a>
 
-        <a href="#">
+        <a href="/hrm-system/public/index.php?controller=Attendance&action=index">
 
             <i class="fa-solid fa-chart-line"></i>
-            Báo cáo
+            Chấm công
+
+        </a>
+
+        <a href="/hrm-system/public/index.php?controller=Contract&action=index">
+
+            <i class="fa-solid fa-file-contract"></i>
+            Hợp đồng
+
+        </a>
+
+        <a href="/hrm-system/public/index.php?controller=Leave&action=index">
+
+            <i class="fa-solid fa-calendar-check"></i>
+            Nghỉ phép
+
+        </a>
+
+        <a href="/hrm-system/public/index.php?controller=Payroll&action=index">
+
+            <i class="fa-solid fa-money-bill"></i>
+            Lương
 
         </a>
 
@@ -90,7 +111,8 @@
     <div class="employee-card">
 
         <form method="POST"
-            action="/hrm-system/public/index.php?controller=Employee&action=store">
+            action="/hrm-system/public/index.php?controller=Employee&action=store"
+            enctype="multipart/form-data">
 
             <div class="row mb-3">
 
@@ -108,9 +130,36 @@
 
                     <label class="form-label">Họ và tên</label>
                     <input type="text"
-                        name="fullname"
+                        name="full_name"
                         class="form-control"
                         required>
+
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">Giới tính</label>
+                    <select name="gender"
+                        class="form-control">
+
+                        <option value="Male">Nam</option>
+                        <option value="Female">Nữ</option>
+                        <option value="Other">Khác</option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">Ngày sinh</label>
+                    <input type="date"
+                        name="date_of_birth"
+                        class="form-control">
 
                 </div>
 
@@ -139,33 +188,6 @@
 
             </div>
 
-            <div class="row mb-3">
-
-                <div class="col-md-6">
-
-                    <label class="form-label">Giới tính</label>
-                    <select name="gender"
-                        class="form-control">
-
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-
-                    </select>
-
-                </div>
-
-                <div class="col-md-6">
-
-                    <label class="form-label">Ngày sinh</label>
-                    <input type="date"
-                        name="birthday"
-                        class="form-control">
-
-                </div>
-
-            </div>
-
             <div class="mb-3">
 
                 <label class="form-label">Địa chỉ</label>
@@ -175,15 +197,30 @@
 
             </div>
 
+            <div class="mb-3">
+
+                <label class="form-label">Ảnh đại diện</label>
+                <input type="file"
+                    name="avatar"
+                    class="form-control"
+                    accept="image/*">
+
+            </div>
+
             <div class="row mb-3">
 
                 <div class="col-md-4">
 
                     <label class="form-label">Phòng ban</label>
-                    <input type="text"
-                        name="department"
-                        class="form-control"
-                        required>
+                    <select name="department_id"
+                        class="form-control">
+                        <option value="">-- Chọn phòng ban --</option>
+                        <?php if(isset($departments) && $departments->num_rows > 0): ?>
+                            <?php while($dept = $departments->fetch_assoc()): ?>
+                                <option value="<?= $dept['id'] ?>"><?= $dept['department_name'] ?></option>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                    </select>
 
                 </div>
 
@@ -199,11 +236,30 @@
 
                 <div class="col-md-4">
 
-                    <label class="form-label">Lương</label>
-                    <input type="number"
-                        name="salary"
+                    <label class="form-label">Ngày vào làm</label>
+                    <input type="date"
+                        name="hire_date"
                         class="form-control"
                         required>
+
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status"
+                        class="form-control">
+
+                        <option value="Working">Đang làm việc</option>
+                        <option value="Probation">Thử việc</option>
+                        <option value="Resigned">Đã nghỉ việc</option>
+                        <option value="Maternity Leave">Nghỉ thai sản</option>
+
+                    </select>
 
                 </div>
 

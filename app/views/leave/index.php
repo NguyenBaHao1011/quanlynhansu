@@ -2,12 +2,9 @@
 <html lang="vi">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Danh sách nhân viên</title>
+    <title>Danh sách nghỉ phép</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -23,8 +20,6 @@
 
 <body>
 
-<!-- SIDEBAR -->
-
 <div class="sidebar">
 
     <div class="logo">
@@ -38,8 +33,7 @@
             Dashboard
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Employee&action=index"
-            class="active-menu">
+        <a href="/hrm-system/public/index.php?controller=Employee&action=index">
 
             <i class="fa-solid fa-users"></i>
             Nhân viên
@@ -67,7 +61,8 @@
 
         </a>
 
-        <a href="/hrm-system/public/index.php?controller=Leave&action=index">
+        <a href="/hrm-system/public/index.php?controller=Leave&action=index"
+            class="active-menu">
 
             <i class="fa-solid fa-calendar-check"></i>
             Nghỉ phép
@@ -92,24 +87,22 @@
 
 </div>
 
-<!-- MAIN CONTENT -->
-
 <div class="main-content">
 
     <div class="top-bar">
 
         <h1 class="page-title">
 
-            <i class="fa-solid fa-users"></i>
-            Danh sách nhân viên
+            <i class="fa-solid fa-calendar-check"></i>
+            Danh sách nghỉ phép
 
         </h1>
 
-        <a href="<?= BASE_URL ?>index.php?controller=Employee&action=create"
+        <a href="<?= BASE_URL ?>index.php?controller=Leave&action=create"
            class="btn-add">
 
             <i class="fa-solid fa-plus"></i>
-            Thêm nhân viên
+            Thêm nghỉ phép
 
         </a>
 
@@ -118,11 +111,11 @@
     <div class="employee-card">
         <form method="GET"
             action="/hrm-system/public/index.php"
-            class="search-form">
+            class="mb-4 d-flex">
 
             <input type="hidden"
                 name="controller"
-                value="Employee">
+                value="Leave">
 
             <input type="hidden"
                 name="action"
@@ -130,10 +123,10 @@
 
             <input type="text"
                 name="keyword"
-                class="form-control"
-                placeholder="Tìm nhân viên theo tên, email, mã NV...">
+                class="form-control me-2"
+                placeholder="Tìm kiếm nhân viên...">
 
-            <button class="btn-search">
+            <button class="btn btn-primary">
 
                 <i class="fa-solid fa-magnifying-glass"></i>
 
@@ -151,10 +144,12 @@
                     <th>ID</th>
                     <th>Mã NV</th>
                     <th>Họ tên</th>
-                    <th>Email</th>
                     <th>Phòng ban</th>
-                    <th>Chức vụ</th>
+                    <th>Loại</th>
+                    <th>Từ ngày</th>
+                    <th>Đến ngày</th>
                     <th>Trạng thái</th>
+                    <th>Người duyệt</th>
                     <th>Hành động</th>
 
                 </tr>
@@ -163,9 +158,9 @@
 
             <tbody>
 
-            <?php if(isset($employees) && $employees->num_rows > 0): ?>
+            <?php if(isset($leaves) && $leaves->num_rows > 0): ?>
 
-                <?php while($row = $employees->fetch_assoc()) : ?>
+                <?php while($row = $leaves->fetch_assoc()) : ?>
 
                     <tr>
 
@@ -177,40 +172,32 @@
                             <strong><?= $row['full_name'] ?></strong>
                         </td>
 
-                        <td><?= $row['email'] ?></td>
+                        <td><?= $row['department_name'] ?? 'Chưa có' ?></td>
 
                         <td>
-                            <span class="department">
-                                <?= $row['department_name'] ?? 'Chưa có' ?>
-                            </span>
+                            <span class="badge bg-info"><?= $row['leave_type'] ?></span>
                         </td>
 
-                        <td>
-                            <span class="position">
-                                <?= $row['position'] ?? 'Chưa có' ?>
-                            </span>
-                        </td>
+                        <td><?= $row['start_date'] ?></td>
+
+                        <td><?= $row['end_date'] ?></td>
 
                         <td>
                             <?php 
                                 $statusClass = '';
                                 $statusText = '';
                                 switch($row['status']) {
-                                    case 'Working':
-                                        $statusClass = 'bg-success';
-                                        $statusText = 'Đang làm';
-                                        break;
-                                    case 'Probation':
+                                    case 'Pending':
                                         $statusClass = 'bg-warning text-dark';
-                                        $statusText = 'Thử việc';
+                                        $statusText = 'Chờ duyệt';
                                         break;
-                                    case 'Resigned':
+                                    case 'Approved':
+                                        $statusClass = 'bg-success';
+                                        $statusText = 'Đã duyệt';
+                                        break;
+                                    case 'Rejected':
                                         $statusClass = 'bg-danger';
-                                        $statusText = 'Đã nghỉ';
-                                        break;
-                                    case 'Maternity Leave':
-                                        $statusClass = 'bg-info';
-                                        $statusText = 'Nghỉ thai';
+                                        $statusText = 'Từ chối';
                                         break;
                                     default:
                                         $statusClass = 'bg-secondary';
@@ -220,24 +207,37 @@
                             <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
                         </td>
 
+                        <td><?= $row['approved_by_name'] ?? 'Chưa có' ?></td>
+
                         <td>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=edit&id=<?= $row['id'] ?>"
+                            <a href="/hrm-system/public/index.php?controller=Leave&action=edit&id=<?= $row['id'] ?>"
                             class="action-btn btn-edit text-decoration-none">
 
                                 <i class="fa-solid fa-pen"></i>
 
                             </a>
 
-                            <?php if (Auth::isAdmin()): ?>
+                            <?php if($row['status'] == 'Pending' && $_SESSION['user']['role'] == 'admin'): ?>
+                            <a href="/hrm-system/public/index.php?controller=Leave&action=approve&id=<?= $row['id'] ?>"
+                            class="action-btn btn-success text-decoration-none"
+                            onclick="return confirm('Duyệt đơn này?');">
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+                            <a href="/hrm-system/public/index.php?controller=Leave&action=reject&id=<?= $row['id'] ?>"
+                            class="action-btn btn-danger text-decoration-none"
+                            onclick="return confirm('Từ chối đơn này?');">
+                                <i class="fa-solid fa-times"></i>
+                            </a>
+                            <?php endif; ?>
 
-                            <a href="/hrm-system/public/index.php?controller=Employee&action=delete&id=<?= $row['id'] ?>"
+                            <?php if($_SESSION['user']['role'] == 'admin'): ?>
+                            <a href="/hrm-system/public/index.php?controller=Leave&action=delete&id=<?= $row['id'] ?>"
                             class="action-btn btn-delete text-decoration-none">
 
                                 <i class="fa-solid fa-trash"></i>
 
                             </a>
-
                             <?php endif; ?>
 
                         </td>
@@ -250,14 +250,14 @@
 
                 <tr>
 
-                    <td colspan="8">
+                    <td colspan="9">
 
                         <div class="empty-box">
 
-                            <i class="fa-solid fa-users-slash"></i>
+                            <i class="fa-solid fa-calendar-times"></i>
 
                             <h4>
-                                Chưa có nhân viên nào
+                                Chưa có đơn nghỉ phép nào
                             </h4>
 
                         </div>
@@ -274,12 +274,12 @@
         </div>
 
         <?php if(isset($totalPage)): ?>
-        <div class="pagination-wrapper">
+        <div class="d-flex justify-content-center mt-4">
 
             <?php for($i = 1; $i <= $totalPage; $i++): ?>
 
-                <a href="?controller=Employee&action=index&page=<?= $i ?>"
-                class="pagination-btn <?= ($currentPage ?? 1) == $i ? 'active-page' : '' ?>">
+                <a href="?controller=Leave&action=index&page=<?= $i ?>"
+                class="pagination-btn mx-1">
 
                     <?= $i ?>
 

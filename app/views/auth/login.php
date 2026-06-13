@@ -10,6 +10,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 </head>
 
 <body>
@@ -36,7 +40,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- Display error message if exists -->
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="error-message">
+            <div class="error-message alert alert-danger">
                 <?php 
                 echo $_SESSION['error'];
                 unset($_SESSION['error']);
@@ -46,7 +50,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- Display success message if exists -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="success-message">
+            <div class="success-message alert alert-success">
                 <?php 
                 echo $_SESSION['success'];
                 unset($_SESSION['success']);
@@ -57,40 +61,42 @@ if (session_status() === PHP_SESSION_NONE) {
        <form action="/hrm-system/public/index.php?controller=Auth&action=authenticate"
             method="POST">
 
-            <div class="input-group">
+            <div class="input-group mb-3">
 
-                    <i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-envelope"></i>
 
                     <input type="email"
                         name="email"
+                        class="form-control"
                         placeholder="Email"
                         required>
 
             </div>
 
-             <div class="input-group">
+             <div class="input-group mb-3">
 
                     <i class="fa-solid fa-lock"></i>
 
                     <input type="password"
                         name="password"
+                        class="form-control"
                         placeholder="Mật khẩu"
                         required>
 
             </div>
 
-            <div class="remember">
-                <input type="checkbox" name="remember">
-                <label>Remember me</label>
+            <div class="remember mb-3">
+                <input type="checkbox" name="remember" id="remember">
+                <label for="remember">Ghi nhớ đăng nhập</label>
             </div>
 
-            <button type="submit" class="btn-login">
+            <button type="submit" class="btn-login w-100">
                 Đăng nhập
             </button>
 
         </form>
 
-        <div class="register-link">
+        <div class="register-link mt-3">
             Chưa có tài khoản?
             <a href="/hrm-system/public/index.php?controller=Auth&action=register">
                 Đăng ký

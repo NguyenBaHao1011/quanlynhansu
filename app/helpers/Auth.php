@@ -21,7 +21,7 @@ class Auth
      */
     public static function isAdmin()
     {
-        return self::check() && $_SESSION['user']['role'] === 'admin';
+        return self::check() && isset($_SESSION['user']['role_name']) && $_SESSION['user']['role_name'] === 'Admin';
     }
 
     /**
@@ -30,7 +30,7 @@ class Auth
      */
     public static function isEmployee()
     {
-        return self::check() && $_SESSION['user']['role'] === 'employee';
+        return self::check() && isset($_SESSION['user']['role_name']) && ($_SESSION['user']['role_name'] === 'Employee' || $_SESSION['user']['role_name'] === 'HR');
     }
 
     /**
@@ -57,7 +57,7 @@ class Auth
      */
     public static function role()
     {
-        return $_SESSION['user']['role'] ?? null;
+        return $_SESSION['user']['role_name'] ?? null;
     }
 
     /**
